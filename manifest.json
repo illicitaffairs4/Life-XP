@@ -1,0 +1,19 @@
+{
+  "name": "Life XP",
+  "short_name": "Life XP",
+  "description": "Personal life gamification and mood tracker",
+  "start_url": "/Life-xx/",
+  "scope": "/Life-xx/",
+  "display": "standalone",
+  "background_color": "#f5f5f0",
+  "theme_color": "#7F77DD",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

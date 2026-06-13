@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Life XP">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7F77DD">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Life XP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a18;min-height:100vh}
+.app{max-width:680px;margin:0 auto;padding:1.25rem 1rem calc(5rem + env(safe-area-inset-bottom))}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.hdr h1{font-size:22px;font-weight:600;color:#1a1a18}
+.hdr p{font-size:12px;color:#888;margin-top:2px}
+.streak-bar{display:flex;align-items:center;gap:8px;background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:10px;padding:8px 12px;margin-bottom:1rem}
+.streak-fire{font-size:20px}
+.streak-info{flex:1}
+.streak-num{font-size:16px;font-weight:700;color:#1a1a18}
+.streak-lbl{font-size:11px;color:#888}
+.streak-best{font-size:11px;color:#aaa;text-align:right}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:#fff;border-radius:10px;padding:0.75rem 0.9rem;border:0.5px solid rgba(0,0,0,0.08)}
+.sl{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.sv{font-size:20px;font-weight:600;color:#1a1a18}
+.sv.pos{color:#0F6E56}.sv.neg{color:#c0392b}
+.pb-wrap{margin-bottom:1rem}
+.pb-lbl{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:5px}
+.pb-bg{height:7px;background:#e8e8e4;border-radius:999px;overflow:hidden}
+.pb-fill{height:100%;background:#1D9E75;border-radius:999px;transition:width .4s}
+.tabs{display:flex;gap:2px;border-bottom:1px solid #e8e8e4;margin-bottom:1.1rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-size:12px;padding:8px 12px;border:none;background:transparent;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;border-radius:0}
+.tab.active{color:#1a1a18;font-weight:600;border-bottom-color:#7F77DD}
+.view{display:none}.view.active{display:block}
+.stitle{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin:1.1rem 0 .5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-bottom:.4rem}
+.abtn{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:10px;cursor:pointer;gap:8px;transition:background .12s;-webkit-tap-highlight-color:transparent}
+.abtn:active{background:#f0f0ec}
+.abtn.logged{border-color:#1D9E75;background:#e8f7f1}
+.abtn.pen:active{background:#fdf0f0}
+.abtn.pen.logged{border-color:#c0392b;background:#fdf0f0}
+.aname{font-size:12px;color:#1a1a18;flex:1;line-height:1.35;text-align:left}
+.abtn.logged .aname{color:#085041}
+.abtn.pen.logged .aname{color:#8b1a1a}
+.apts{font-size:12px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.apts.pos{color:#0F6E56}.apts.neg{color:#c0392b}
+.add-more{font-size:11px;padding:2px 6px;border-radius:5px;background:transparent;cursor:pointer;border:0.5px solid}
+.li{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid #e8e8e4}
+.li:last-child{border-bottom:none}
+.li-name{font-size:13px;color:#1a1a18}
+.li-time{font-size:11px;color:#aaa}
+.ubtn{font-size:11px;color:#aaa;background:none;border:0.5px solid #ddd;border-radius:6px;padding:3px 8px;cursor:pointer}
+.empty{text-align:center;padding:2.5rem 1rem;color:#aaa;font-size:13px}
+.wg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:.6rem 0 .4rem}
+.dc{text-align:center;padding:8px 3px;border-radius:10px;background:#fff;border:0.5px solid rgba(0,0,0,0.08)}
+.dn{font-size:10px;color:#aaa;text-transform:uppercase;margin-bottom:3px}
+.dp{font-size:13px;font-weight:600;color:#1a1a18}
+.dc.today{border:2px solid #7F77DD}
+.dc.win{background:#e8f7f1}.dc.win .dp{color:#085041}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid #e8e8e4;font-size:13px}
+.rr:last-child{border-bottom:none}
+.rpts{font-weight:600}.rpts.pos{color:#0F6E56}.rpts.neg{color:#c0392b}
+.rbtn{font-size:12px;color:#aaa;background:#fff;border:0.5px solid #ddd;border-radius:8px;padding:4px 10px;cursor:pointer}
+.mood-card{background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.mood-card h3{font-size:15px;font-weight:600;color:#1a1a18;margin-bottom:1rem}
+.emoji-row{display:flex;gap:6px;justify-content:space-between;margin-bottom:1rem}
+.ebtn{flex:1;padding:10px 3px;border:0.5px solid #e8e8e4;border-radius:10px;text-align:center;cursor:pointer;background:#f5f5f0;-webkit-tap-highlight-color:transparent}
+.ebtn.active{background:#EEEDFE;border-color:#7F77DD}
+.eico{font-size:20px}
+.elbl{font-size:10px;color:#aaa;margin-top:3px}
+.ebtn.active .elbl{color:#534AB7}
+.srow{display:flex;align-items:center;gap:10px;margin-bottom:.65rem}
+.srow label{font-size:12px;color:#666;min-width:82px}
+.srow input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:999px;background:#e8e8e4;outline:none}
+.srow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#7F77DD;cursor:pointer}
+.sval{font-size:13px;font-weight:600;color:#1a1a18;min-width:20px;text-align:right}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin:.4rem 0 .9rem}
+.mtag{font-size:12px;padding:5px 12px;border-radius:999px;border:0.5px solid #ddd;background:#f5f5f0;color:#666;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mtag.active{background:#EEEDFE;border-color:#7F77DD;color:#3C3489}
+.mnote{width:100%;font-size:13px;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;background:#fff;color:#1a1a18;resize:none;font-family:inherit}
+.save-btn{width:100%;margin-top:1rem;padding:12px;background:#7F77DD;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.save-btn:active{background:#534AB7}
+.mood-hist-item{background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:.9rem 1rem;margin-bottom:.6rem}
+.mhi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.mhi-date{font-size:13px;font-weight:600;color:#1a1a18}
+.mhi-emoji{font-size:18px}
+.mhi-bars{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:.5rem}
+.mhi-bar{text-align:center}
+.mhi-bl{font-size:10px;color:#aaa;margin-bottom:2px}
+.mhi-bv{font-size:13px;font-weight:600;color:#1a1a18}
+.mhi-tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:#EEEDFE;color:#3C3489;margin-right:4px;margin-bottom:4px}
+.mhi-note{font-size:12px;color:#666;margin-top:.4rem;line-height:1.5;font-style:italic}
+.chart-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.chart-lbl{font-size:11px;color:#888;min-width:78px;text-align:right}
+.chart-bar-bg{flex:1;height:14px;background:#e8e8e4;border-radius:999px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:999px;transition:width .4s}
+.chart-val{font-size:11px;color:#aaa;min-width:24px}
+.ins-card{background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:.9rem 1rem;margin-bottom:.6rem}
+.ins-title{font-size:13px;font-weight:600;color:#1a1a18;margin-bottom:.4rem}
+.ins-sub{font-size:12px;color:#666;line-height:1.6}
+.ins-sub strong{color:#1a1a18}
+.act-rank-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid #f0f0ec;font-size:12px}
+.act-rank-row:last-child{border-bottom:none}
+.act-rank-name{color:#1a1a18;flex:1}
+.act-rank-mood{font-weight:600;color:#7F77DD;min-width:40px;text-align:right}
+.backup-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.backup-btn{flex:1;min-width:120px;padding:10px 14px;border-radius:10px;border:0.5px solid #ddd;background:#fff;font-size:13px;font-weight:600;color:#1a1a18;cursor:pointer;text-align:center}
+.backup-btn:active{background:#f0f0ec}
+.backup-btn.danger{border-color:#c0392b;color:#c0392b}
+.note-small{font-size:11px;color:#aaa;margin-top:.5rem;line-height:1.6}
+.backup-hint{font-size:11px;color:#aaa;line-height:1.6;background:#f5f5f0;border-radius:8px;padding:10px 12px;margin-bottom:1rem}
+
+.intention-card{background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1rem}
+.intention-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:.6rem}
+.intention-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#7F77DD;margin-bottom:3px}
+.intention-sub{font-size:13px;color:#1a1a18;font-weight:500;line-height:1.4}
+.intention-sub.placeholder{color:#aaa;font-weight:400}
+.intention-check{width:28px;height:28px;border-radius:50%;border:2px solid #e8e8e4;background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;-webkit-tap-highlight-color:transparent}
+.intention-check.done{background:#7F77DD;border-color:#7F77DD;color:#fff}
+.intention-input-row{display:flex;gap:8px}
+.intention-input-row input{flex:1;font-size:13px;padding:8px 10px;border:0.5px solid #ddd;border-radius:8px;background:#f5f5f0;font-family:inherit;color:#1a1a18}
+.intention-input-row button{padding:8px 14px;background:#7F77DD;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+
+
+
+
+
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:flex-end;justify-content:center;padding-bottom:0}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;padding:1.5rem 1.25rem calc(2rem + env(safe-area-inset-bottom));width:100%;max-width:680px}
+.modal-title{font-size:17px;font-weight:700;color:#1a1a18;margin-bottom:4px}
+.modal-sub{font-size:12px;color:#aaa;margin-bottom:1rem;line-height:1.5}
+.modal-input{width:100%;font-size:13px;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;background:#f5f5f0;color:#1a1a18;resize:none;font-family:inherit;margin-bottom:1rem}
+.modal-pts-row{display:flex;align-items:center;gap:16px;margin-bottom:1rem;justify-content:center}
+.modal-pts-lbl{font-size:13px;color:#666}
+.pts-adj{width:36px;height:36px;border-radius:50%;border:0.5px solid #ddd;background:#f5f5f0;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1a1a18;-webkit-tap-highlight-color:transparent}
+.pts-adj:active{background:#e8e8e4}
+.modal-pts-val{font-size:28px;font-weight:700;color:#1a1a18;min-width:40px;text-align:center}
+.modal-type-row{display:flex;gap:8px;margin-bottom:1.25rem}
+.type-btn{flex:1;padding:9px;border-radius:10px;border:0.5px solid #ddd;background:#f5f5f0;font-size:13px;color:#666;cursor:pointer;font-weight:500;-webkit-tap-highlight-color:transparent}
+.type-btn.active{background:#EEEDFE;border-color:#7F77DD;color:#3C3489}
+#type-neg.active{background:#FCEBEB;border-color:#c0392b;color:#8b1a1a}
+.modal-save{width:100%;padding:13px;background:#7F77DD;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;-webkit-tap-highlight-color:transparent}
+.modal-save:active{background:#534AB7}
+.modal-cancel{width:100%;padding:10px;background:transparent;color:#aaa;border:none;font-size:14px;cursor:pointer}
+
+.sum-hero{background:linear-gradient(135deg,#7F77DD 0%,#534AB7 100%);border-radius:16px;padding:1.5rem 1.25rem;margin-bottom:1rem;color:#fff}
+.sum-week{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:.4rem}
+.sum-score{font-size:48px;font-weight:700;line-height:1;margin-bottom:.25rem}
+.sum-goal{font-size:13px;opacity:.8}
+.sum-verdict{font-size:15px;font-weight:600;margin-top:.75rem;padding:.6rem .9rem;background:rgba(255,255,255,0.15);border-radius:10px}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.sum-stat{background:#fff;border-radius:12px;padding:.85rem .9rem;border:0.5px solid rgba(0,0,0,0.08);text-align:center}
+.sum-stat-val{font-size:20px;font-weight:700;color:#1a1a18}
+.sum-stat-lbl{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.sum-section{background:#fff;border-radius:12px;padding:1rem 1.1rem;margin-bottom:.75rem;border:0.5px solid rgba(0,0,0,0.08)}
+.sum-section-title{font-size:12px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem}
+.sum-day-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:.5px solid #f5f5f0;font-size:13px}
+.sum-day-row:last-child{border-bottom:none}
+.sum-day-name{min-width:36px;color:#888}
+.sum-day-bar-bg{flex:1;height:8px;background:#f0f0ec;border-radius:999px;overflow:hidden}
+.sum-day-bar-fill{height:100%;border-radius:999px;background:#7F77DD}
+.sum-day-pts{min-width:36px;text-align:right;font-weight:600;color:#1a1a18}
+.sum-insight{font-size:13px;color:#444;line-height:1.6;padding:.5rem 0;border-bottom:.5px solid #f5f5f0}
+.sum-insight:last-child{border-bottom:none}
+.sum-insight strong{color:#1a1a18}
+.sum-empty{text-align:center;padding:3rem 1rem;color:#aaa;font-size:13px}
+
+.custom-bar-btn{width:100%;padding:14px;background:#7F77DD;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;letter-spacing:0.02em}
+.custom-bar-btn:active{background:#534AB7}
+
+.hist-month{font-size:12px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.08em;margin:1.25rem 0 .5rem;padding-left:4px}
+.hist-day{background:#fff;border:.5px solid rgba(0,0,0,0.08);border-radius:12px;margin-bottom:6px;overflow:hidden}
+.hist-day-header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hist-day-header:active{background:#f5f5f0}
+.hist-day-left{display:flex;align-items:center;gap:10px}
+.hist-day-name{font-size:13px;font-weight:600;color:#1a1a18}
+.hist-day-date{font-size:11px;color:#aaa}
+.hist-day-pts{font-size:14px;font-weight:700}
+.hist-day-pts.pos{color:#0F6E56}
+.hist-day-pts.neg{color:#c0392b}
+.hist-day-pts.zero{color:#aaa}
+.hist-day-mood{font-size:14px}
+.hist-day-body{display:none;padding:.5rem 1rem .75rem;border-top:.5px solid #f0f0ec}
+.hist-day-body.open{display:block}
+.hist-entry{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid #f5f5f0;font-size:12px}
+.hist-entry:last-child{border-bottom:none}
+.hist-entry-name{color:#444;flex:1}
+.hist-entry-pts{font-weight:600}
+.hist-entry-pts.pos{color:#0F6E56}
+.hist-entry-pts.neg{color:#c0392b}
+.hist-mood-row{margin-top:.5rem;padding:.5rem .75rem;background:#f5f5f0;border-radius:8px;font-size:11px;color:#666;line-height:1.6}
+.hist-empty{text-align:center;padding:2rem;color:#aaa;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div><h1>Life XP</h1><p id="date-lbl"></p></div>
+    <button class="rbtn" onclick="resetDay()">Reset today</button>
+  </div>
+
+  <div class="streak-bar">
+    <div class="streak-fire">🔥</div>
+    <div class="streak-info">
+      <div class="streak-num"><span id="streak-count">0</span> day streak</div>
+      <div class="streak-lbl" id="streak-sub">Log today to start your streak</div>
+    </div>
+    <div class="streak-best" id="streak-best"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="sl">Today</div><div class="sv" id="s-today">0</div></div>
+    <div class="stat"><div class="sl">This week</div><div class="sv" id="s-week">0</div></div>
+    <div class="stat"><div class="sl">Goal</div><div class="sv">25</div></div>
+    <div class="stat"><div class="sl">Best day</div><div class="sv" id="s-best">0</div></div>
+  </div>
+
+  <div class="pb-wrap">
+    <div class="pb-lbl"><span>Weekly progress</span><span id="pb-lbl">0 / 25</span></div>
+    <div class="pb-bg"><div class="pb-fill" id="pb-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="sw('log',this)">Log</button>
+    <button class="tab" onclick="sw('today',this)">Today</button>
+    <button class="tab" onclick="sw('mood',this)">Mood</button>
+    <button class="tab" onclick="sw('insights',this)">Insights</button>
+    <button class="tab" onclick="sw('week',this)">Week</button>
+    <button class="tab" onclick="sw('history',this)">History</button>
+    <button class="tab" onclick="sw('rules',this)">Rules</button>
+    <button class="tab" onclick="sw('summary',this)">Week recap</button>
+    <button class="tab" onclick="sw('custom',this)">＋ Custom</button>
+    <button class="tab" onclick="sw('backup',this)">Backup</button>
+  </div>
+
+  <div id="view-log" class="view active">
+    <div class="intention-card" id="intention-card">
+      <div class="intention-top">
+        <div>
+          <div class="intention-label">Today's intention</div>
+          <div class="intention-sub" id="intention-display">What's the one thing you want to do today?</div>
+        </div>
+        <button class="intention-check" id="intention-check-btn" onclick="toggleIntentionDone()" title="Mark done"></button>
+      </div>
+      <div class="intention-input-row" id="intention-input-row">
+        <input type="text" id="intention-input" placeholder="e.g. Do my German session before lunch..." maxlength="100">
+        <button onclick="saveIntention()">Set</button>
+      </div>
+    </div>
+    <div class="stitle">Mind</div><div class="grid" id="g-mind"></div>
+    <div class="stitle">Body</div><div class="grid" id="g-body"></div>
+    <div class="stitle">Career & German</div><div class="grid" id="g-career"></div>
+    <div class="stitle">Joy & soul</div><div class="grid" id="g-joy"></div>
+    <div class="stitle">Inner work</div><div class="grid" id="g-shadow"></div>
+    <div class="stitle">Morning rituals</div><div class="grid" id="g-morning"></div>
+    <div class="stitle">Penalties</div><div class="grid" id="g-penalty"></div>
+    <div style="margin-top:1.25rem"><button class="custom-bar-btn" onclick="openCustomModal()">＋ &nbsp;Log something custom</button></div>
+  </div>
+
+
+  <div id="view-today" class="view">
+    <div class="stitle">Logged today</div>
+    <div id="log-list"></div>
+  </div>
+
+  <div id="view-mood" class="view">
+    <div class="mood-card">
+      <h3>Evening check-in</h3>
+      <div class="emoji-row">
+        <div class="ebtn" onclick="pickEmoji(this,'awful',1)"><div class="eico">😞</div><div class="elbl">awful</div></div>
+        <div class="ebtn" onclick="pickEmoji(this,'low',3)"><div class="eico">😕</div><div class="elbl">low</div></div>
+        <div class="ebtn" onclick="pickEmoji(this,'meh',5)"><div class="eico">😐</div><div class="elbl">meh</div></div>
+        <div class="ebtn" onclick="pickEmoji(this,'good',7)"><div class="eico">🙂</div><div class="elbl">good</div></div>
+        <div class="ebtn" onclick="pickEmoji(this,'great',9)"><div class="eico">😄</div><div class="elbl">great</div></div>
+      </div>
+      <div class="srow"><label>Overall mood</label><input type="range" min="1" max="10" value="5" step="1" id="sl-mood" oninput="document.getElementById('sv-mood').textContent=this.value"><span class="sval" id="sv-mood">5</span></div>
+      <div class="srow"><label>Energy</label><input type="range" min="1" max="10" value="5" step="1" id="sl-energy" oninput="document.getElementById('sv-energy').textContent=this.value"><span class="sval" id="sv-energy">5</span></div>
+      <div class="srow"><label>Anxiety</label><input type="range" min="1" max="10" value="5" step="1" id="sl-anxiety" oninput="document.getElementById('sv-anxiety').textContent=this.value"><span class="sval" id="sv-anxiety">5</span></div>
+      <div class="srow"><label>Confidence</label><input type="range" min="1" max="10" value="5" step="1" id="sl-conf" oninput="document.getElementById('sv-conf').textContent=this.value"><span class="sval" id="sv-conf">5</span></div>
+      <div class="srow"><label>Stress</label><input type="range" min="1" max="10" value="5" step="1" id="sl-stress" oninput="document.getElementById('sv-stress').textContent=this.value"><span class="sval" id="sv-stress">5</span></div>
+      <div style="font-size:11px;color:#aaa;margin:.75rem 0 .4rem">How would you describe today? (pick as many as you like)</div>
+      <div class="tag-wrap" id="mood-tags">
+        <span class="mtag" onclick="this.classList.toggle('active')">motivated</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">calm</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">anxious</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">grateful</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">tired</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">proud</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">disconnected</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">joyful</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">restless</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">focused</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">overwhelmed</span>
+        <span class="mtag" onclick="this.classList.toggle('active')">content</span>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:.5rem">One sentence about today (optional)</div>
+      <textarea class="mnote" id="mood-note" rows="2" placeholder="e.g. felt really good after the walk, struggled with focus in the evening..."></textarea>
+      <button class="save-btn" onclick="saveMood()">Save today's mood</button>
+    </div>
+    <div class="stitle">Mood history</div>
+    <div id="mood-history"></div>
+  </div>
+
+  <div id="view-insights" class="view">
+    <div class="stitle">Average scores — last 7 entries</div>
+    <div id="avg-bars"></div>
+    <div class="stitle">Which activities boost your mood most</div>
+    <div id="act-impact"></div>
+    <div class="stitle">Points vs mood correlation</div>
+    <div id="corr-section"></div>
+    <div class="stitle">Most common mood tags</div>
+    <div id="tag-freq"></div>
+  </div>
+
+  <div id="view-week" class="view">
+    <div class="stitle">This week — tap any day to see details</div>
+    <div class="wg" id="week-grid"></div>
+    <p class="note-small" style="margin-bottom:1rem">Green = daily target (4 pts) reached. Purple border = today.</p>
+    <div id="day-detail" style="display:none">
+      <div class="stitle" id="day-detail-title">Day detail</div>
+      <div id="day-detail-content"></div>
+    </div>
+  </div>
+
+  <div id="view-rules" class="view">
+    <div class="stitle">Earning points</div><div id="rules-earn"></div>
+    <div class="stitle">Penalties</div><div id="rules-lose"></div>
+    <p class="note-small" style="margin-top:1rem">Weekly goal: 25 pts · Daily target: 4 pts · Tap to log, tap again to remove · Use + to log same activity twice</p>
+  </div>
+
+  <div id="view-history" class="view">
+    <div class="stitle">Full history — tap any day to expand</div>
+    <div id="history-content"></div>
+  </div>
+
+  <div id="view-summary" class="view">
+    <div id="summary-content"></div>
+  </div>
+
+  <div id="view-custom" class="view">
+    <div class="mood-card" style="margin-top:0.5rem">
+      <h3 style="margin-bottom:0.5rem">Log something custom</h3>
+      <p style="font-size:12px;color:#aaa;margin-bottom:1rem;line-height:1.5">Anything that happened that deserves points — or cost you points — that isn't on the list.</p>
+      <div style="font-size:11px;color:#aaa;margin-bottom:0.5rem">What happened?</div>
+      <textarea class="mnote" id="custom-desc2" rows="3" placeholder="e.g. Didn't react emotionally even though I wanted to..." maxlength="200" style="margin-bottom:1rem"></textarea>
+      <div style="font-size:11px;color:#aaa;margin-bottom:0.75rem">How many points?</div>
+      <div style="display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:1rem">
+        <button class="pts-adj" onclick="adjustCustomPts2(-1)">−</button>
+        <span style="font-size:32px;font-weight:700;color:#1a1a18;min-width:40px;text-align:center" id="custom-pts-val2">3</span>
+        <button class="pts-adj" onclick="adjustCustomPts2(1)">＋</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:1.25rem">
+        <button class="type-btn active" id="type-pos2" onclick="setCustomType2('pos')">Points earned</button>
+        <button class="type-btn" id="type-neg2" onclick="setCustomType2('neg')">Points deducted</button>
+      </div>
+      <button class="save-btn" onclick="saveCustom2()">Log it ✓</button>
+    </div>
+  </div>
+
+  <div id="view-backup" class="view">
+    <div class="backup-hint">Your data is stored in this browser only. Export regularly to keep a safe copy — paste it into a notes app, email it to yourself, or save it somewhere. To restore, paste it back and tap Import.</div>
+    <div class="backup-row">
+      <button class="backup-btn" onclick="exportData()">Export data</button>
+      <button class="backup-btn" onclick="importData()">Import backup</button>
+      <button class="backup-btn danger" onclick="clearData()">Clear all data</button>
+    </div>
+    <div class="stitle">Export preview</div>
+    <textarea id="backup-text" class="mnote" rows="8" placeholder="Your exported data will appear here..." style="font-size:11px;font-family:monospace"></textarea>
+    <div class="stitle">Your stats summary</div>
+    <div id="backup-stats"></div>
+  </div>
+
+
+  <!-- Custom points modal -->
+  <div class="modal-overlay" id="custom-modal" onclick="closeCustomModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-title">Custom points</div>
+      <div class="modal-sub">Something happened that's not on the list? Log it here.</div>
+      <textarea class="modal-input" id="custom-desc" placeholder="What did you do / what happened? e.g. Didn't react emotionally even though I wanted to..." rows="3" maxlength="200"></textarea>
+      <div class="modal-pts-row">
+        <span class="modal-pts-lbl">Points:</span>
+        <button class="pts-adj" onclick="adjustCustomPts(-1)">−</button>
+        <span class="modal-pts-val" id="custom-pts-val">3</span>
+        <button class="pts-adj" onclick="adjustCustomPts(1)">＋</button>
+      </div>
+      <div class="modal-type-row">
+        <button class="type-btn active" id="type-pos" onclick="setCustomType('pos')">Points earned</button>
+        <button class="type-btn" id="type-neg" onclick="setCustomType('neg')">Points deducted</button>
+      </div>
+      <button class="modal-save" onclick="saveCustom()">Log it</button>
+      <button class="modal-cancel" onclick="closeCustomModal()">Cancel</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ACTS=[
+  {id:'read20',cat:'mind',name:'Read 20 pages',pts:2},
+  {id:'read40',cat:'mind',name:'Read 40+ pages',pts:3},
+  {id:'chess',cat:'mind',name:'2 games of chess',pts:2},
+  {id:'sudoku',cat:'mind',name:'Sudoku / logic puzzle',pts:1},
+  {id:'article',cat:'mind',name:'Read a long-form article',pts:2},
+  {id:'catexplain',cat:'mind',name:'Explain a concept out loud',pts:4},
+  {id:'deepdive',cat:'mind',name:'Deep dive on a new topic (45+ min)',pts:3},
+  {id:'podcast',cat:'mind',name:'Educational podcast (no multitasking)',pts:2},
+  {id:'workout',cat:'body',name:'Gym / other workout',pts:4},
+  {id:'pole',cat:'body',name:'Pole dancing',pts:4},
+  {id:'walk',cat:'body',name:'Walk 30+ min',pts:2},
+  {id:'sleep8',cat:'body',name:'8+ hours sleep',pts:2},
+  {id:'nophone',cat:'body',name:'No phone first 30 min of day',pts:3},
+  {id:'meal',cat:'body',name:'Prepared a proper meal (not ordered)',pts:2},
+  {id:'stretch',cat:'body',name:'Stretching / mobility (20+ min)',pts:2},
+  {id:'supps',cat:'body',name:'Took supplements consistently',pts:1},
+  {id:'german20',cat:'career',name:'German — 20 min',pts:3},
+  {id:'workvis',cat:'career',name:'Visible contribution at work',pts:3},
+  {id:'masters',cat:'career',name:'Worked on master\'s thesis / coursework',pts:2},
+  {id:'skill',cat:'career',name:'Learned one concrete work skill',pts:3},
+  {id:'deepconvo',cat:'joy',name:'Talk / hang out with a friend',pts:2},
+  {id:'nature',cat:'joy',name:'Time in nature (30+ min, no phone)',pts:3},
+  {id:'newexp',cat:'joy',name:'New experience (place, food, activity)',pts:3},
+  {id:'livemusic',cat:'joy',name:'Live music or cultural event',pts:3},
+  {id:'friend',cat:'joy',name:'Quality time with a close friend',pts:2},
+  {id:'creative',cat:'joy',name:'Creative activity (writing, art, dancing)',pts:3},
+  {id:'mango',cat:'joy',name:'Take Mango on a walk',pts:3},
+  {id:'shadow1',cat:'shadow',name:'Journaling on a trigger or reaction',pts:3},
+  {id:'therapy',cat:'shadow',name:'Therapy / coaching session',pts:3},
+  {id:'meditate',cat:'shadow',name:'Meditation (15+ min)',pts:3},
+  {id:'gratitude',cat:'shadow',name:'Gratitude practice (written, 5 items)',pts:2},
+  {id:'evidence',cat:'shadow',name:'Added to personal evidence file',pts:2},
+  {id:'needask',cat:'shadow',name:'Asked for a need directly (no hinting)',pts:2},
+  {id:'decide',cat:'shadow',name:'Made a decision without seeking validation',pts:3},
+  {id:'stoicism',cat:'shadow',name:'Stoicism practice',pts:2},
+  {id:'breakfast',cat:'morning',name:'Eat breakfast',pts:2},
+  {id:'journalgen',cat:'morning',name:'Journaling',pts:2},
+  {id:'dance',cat:'morning',name:'Dance / sing in the morning',pts:2},
+  {id:'oilpull',cat:'morning',name:'Oil pulling',pts:1},
+  {id:'p-tiktok',cat:'penalty',name:'TikTok 20+ min',pts:-3},
+  {id:'p-insta',cat:'penalty',name:'Instagram 20+ min',pts:-3},
+  {id:'p-phone5',cat:'penalty',name:'Screen time 5+ hours',pts:-3},
+  {id:'p-compare',cat:'penalty',name:'Compared myself online and felt worse',pts:-2},
+  {id:'p-avoid',cat:'penalty',name:'Avoided something I said I\'d do',pts:-3},
+  {id:'p-validation',cat:'penalty',name:'Asked for validation before deciding',pts:-2},
+  {id:'p-complain',cat:'penalty',name:'Complained without taking action',pts:-2},
+  {id:'p-selftalk',cat:'penalty',name:'Talked down to myself unchallenged',pts:-2},
+  {id:'p-spiral',cat:'penalty',name:'Overthought a decision 20+ min',pts:-2},
+  {id:'p-junk',cat:'penalty',name:'Skipped proper meal / ate junk',pts:-2},
+  {id:'p-midnight',cat:'penalty',name:'Went to bed after midnight',pts:-2},
+  {id:'p-morning',cat:'penalty',name:'Skipped morning routine',pts:-3},
+  {id:'p-workout',cat:'penalty',name:'Skipped planned workout',pts:-2},
+  {id:'p-overgive',cat:'penalty',name:'Said yes when I wanted to say no',pts:-2},
+  {id:'p-german',cat:'penalty',name:'Skipped German entirely',pts:-2},
+];
+
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const KEY='lifexp_v4';
+let moodEmoji={label:'',val:5};
+
+
+let customPtsVal = 3;
+let customType = 'pos';
+
+function openCustomModal(){
+  customPtsVal = 3; customType = 'pos';
+  document.getElementById('custom-pts-val').textContent = customPtsVal;
+  document.getElementById('custom-desc').value = '';
+  setCustomType('pos');
+  document.getElementById('custom-modal').classList.add('open');
+}
+function closeCustomModal(){
+  document.getElementById('custom-modal').classList.remove('open');
+}
+function adjustCustomPts(delta){
+  customPtsVal = Math.max(1, Math.min(20, customPtsVal + delta));
+  document.getElementById('custom-pts-val').textContent = customPtsVal;
+}
+function setCustomType(type){
+  customType = type;
+  document.getElementById('type-pos').classList.toggle('active', type==='pos');
+  document.getElementById('type-neg').classList.toggle('active', type==='neg');
+}
+function saveCustom(){
+  const desc = document.getElementById('custom-desc').value.trim();
+  if(!desc){ alert('Please describe what happened first.'); return; }
+  const pts = customType === 'neg' ? -customPtsVal : customPtsVal;
+  const log = getTodayLog();
+  const n = new Date();
+  const t = n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+  const id = 'custom_'+Date.now();
+  log.push({id, name:desc, pts, time:t, custom:true});
+  saveTodayLog(log);
+  closeCustomModal();
+  render();
+}
+
+
+// ── PWA service worker registration ────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+// ── Weekly summary ──────────────────────────────────────────────────────────
+function renderSummary(){
+  const container = document.getElementById('summary-content');
+  const weekDates = getWeekDates();
+  const today = getToday();
+  const d = load();
+  const acts = d.acts || {};
+  const moodLog = d.mood || [];
+
+  const weekPts = weekDates.reduce((s,date)=>s+getDayPts(date),0);
+  const daysActive = weekDates.filter(date=>getDayPts(date)>0).length;
+  const goalMet = weekPts >= 25;
+
+  // mood this week
+  const weekMoods = moodLog.filter(m=>weekDates.includes(m.date));
+  const avgMood = weekMoods.length ? Math.round(weekMoods.reduce((s,m)=>s+m.mood,0)/weekMoods.length*10)/10 : null;
+  const avgConf = weekMoods.length ? Math.round(weekMoods.reduce((s,m)=>s+m.conf,0)/weekMoods.length*10)/10 : null;
+
+  // best day
+  const dayPtsArr = weekDates.map(date=>({date,pts:getDayPts(date)}));
+  const bestDay = dayPtsArr.reduce((a,b)=>b.pts>a.pts?b:a, dayPtsArr[0]);
+  const maxPts = Math.max(...dayPtsArr.map(d=>d.pts), 1);
+
+  // most logged activity this week
+  const actCount = {};
+  weekDates.forEach(date=>{
+    (acts[date]||[]).filter(e=>e.pts>0).forEach(e=>{
+      actCount[e.name]=(actCount[e.name]||0)+1;
+    });
+  });
+  const topAct = Object.entries(actCount).sort((a,b)=>b[1]-a[1])[0];
+
+  // verdict
+  const verdicts = {
+    high: ["Seriously strong week. This is what the system is for.", "You showed up. The data doesn't lie.", "Week like this compounds. Keep going."],
+    mid: ["Solid. Not your best, not your worst — and you kept going.", "Progress is progress. Next week build on this.", "You showed up more than you didn't. That counts."],
+    low: ["Rough week. Note it, don't judge it. Next week is a new score.", "The streak isn't broken — it's paused. Reset Sunday.", "Hard weeks are data too. What got in the way?"]
+  };
+  const tier = weekPts >= 25 ? 'high' : weekPts >= 12 ? 'mid' : 'low';
+  const verdict = verdicts[tier][Math.floor(Math.random()*3)];
+
+  // week label
+  const startDate = new Date(weekDates[0]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  const endDate = new Date(weekDates[6]+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+  let html = `
+    <div class="sum-hero">
+      <div class="sum-week">${startDate} — ${endDate}</div>
+      <div class="sum-score">${weekPts}</div>
+      <div class="sum-goal">out of 25 pts · ${goalMet?'✓ goal reached':'goal not reached yet'}</div>
+      <div class="sum-verdict">${verdict}</div>
+    </div>
+
+    <div class="sum-grid">
+      <div class="sum-stat"><div class="sum-stat-val">${daysActive}</div><div class="sum-stat-lbl">Days active</div></div>
+      <div class="sum-stat"><div class="sum-stat-val">${avgMood!==null?avgMood+'':'—'}</div><div class="sum-stat-lbl">Avg mood</div></div>
+      <div class="sum-stat"><div class="sum-stat-val">${avgConf!==null?avgConf+'':'—'}</div><div class="sum-stat-lbl">Avg confidence</div></div>
+    </div>
+
+    <div class="sum-section">
+      <div class="sum-section-title">Points by day</div>
+      ${weekDates.map(date=>{
+        const pts = getDayPts(date);
+        const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(date+'T12:00:00').getDay()];
+        const isToday = date===today;
+        const pct = Math.round(Math.max(0,pts)/maxPts*100);
+        return `<div class="sum-day-row">
+          <span class="sum-day-name">${dayName}${isToday?' ·':''}</span>
+          <div class="sum-day-bar-bg"><div class="sum-day-bar-fill" style="width:${pct}%;background:${pts>=4?'#1D9E75':pts>0?'#7F77DD':'#e8e8e4'}"></div></div>
+          <span class="sum-day-pts">${pts>0?'+'+pts:pts===0?'—':pts}</span>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="sum-section">
+      <div class="sum-section-title">This week's insights</div>
+      ${topAct?`<div class="sum-insight">Most logged activity: <strong>${topAct[0]}</strong> (${topAct[1]}×)</div>`:''}
+      ${bestDay.pts>0?`<div class="sum-insight">Best day: <strong>${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(bestDay.date+'T12:00:00').getDay()]}</strong> with +${bestDay.pts} pts</div>`:''}
+      ${avgMood!==null?`<div class="sum-insight">Average mood this week: <strong>${avgMood}/10</strong></div>`:''}
+      ${avgConf!==null?`<div class="sum-insight">Average confidence: <strong>${avgConf}/10</strong></div>`:''}
+      ${weekMoods.length===0?`<div class="sum-insight" style="color:#aaa">Log your mood this week to see deeper insights here.</div>`:''}
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+
+let customPtsVal2 = 3;
+let customType2 = 'pos';
+function adjustCustomPts2(delta){
+  customPtsVal2 = Math.max(1, Math.min(20, customPtsVal2 + delta));
+  document.getElementById('custom-pts-val2').textContent = customPtsVal2;
+}
+function setCustomType2(type){
+  customType2 = type;
+  document.getElementById('type-pos2').classList.toggle('active', type==='pos');
+  document.getElementById('type-neg2').classList.toggle('active', type==='neg');
+}
+function saveCustom2(){
+  const desc = document.getElementById('custom-desc2').value.trim();
+  if(!desc){ alert('Please describe what happened first.'); return; }
+  const pts = customType2 === 'neg' ? -customPtsVal2 : customPtsVal2;
+  const log = getTodayLog();
+  const n = new Date();
+  const t = n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+  log.push({id:'custom_'+Date.now(), name:desc, pts, time:t, custom:true});
+  saveTodayLog(log);
+  document.getElementById('custom-desc2').value = '';
+  customPtsVal2 = 3; customType2 = 'pos';
+  document.getElementById('custom-pts-val2').textContent = 3;
+  setCustomType2('pos');
+  alert('Logged! +'+pts+' pts added to today.');
+  render();
+}
+
+function showDayDetail(date){
+  const d = load();
+  const log = (d.acts||{})[date] || [];
+  const moodEntry = (d.mood||[]).find(m=>m.date===date);
+  const pts = log.reduce((s,e)=>s+e.pts,0);
+  const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(date+'T12:00:00').getDay()];
+  const dateStr = new Date(date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  
+  document.getElementById('day-detail').style.display='block';
+  document.getElementById('day-detail-title').textContent = dayName+', '+dateStr+' · '+(pts>0?'+':'')+pts+' pts';
+  
+  const content = document.getElementById('day-detail-content');
+  if(!log.length && !moodEntry){
+    content.innerHTML='<div class="hist-empty">Nothing logged this day.</div>';
+    return;
+  }
+  
+  let html = '';
+  if(log.length){
+    html += '<div style="background:#fff;border:.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:.75rem 1rem;margin-bottom:.5rem">';
+    log.forEach(e=>{
+      html += `<div class="hist-entry"><span class="hist-entry-name">${e.name}</span><span class="hist-entry-pts ${e.pts>=0?'pos':'neg'}">${e.pts>0?'+':''}${e.pts}</span></div>`;
+    });
+    html += '</div>';
+  }
+  if(moodEntry){
+    const EMOJI_MAP={awful:'😞',low:'😕',meh:'😐',good:'🙂',great:'😄'};
+    const tags = moodEntry.tags&&moodEntry.tags.length?moodEntry.tags:(moodEntry.tag?[moodEntry.tag]:[]);
+    html += `<div class="hist-mood-row">
+      ${EMOJI_MAP[moodEntry.emoji]||''} Mood: ${moodEntry.mood}/10 · Energy: ${moodEntry.energy}/10 · Anxiety: ${moodEntry.anxiety}/10 · Confidence: ${moodEntry.conf}/10 · Stress: ${moodEntry.stress||'—'}/10
+      ${tags.length?'<br>Tags: '+tags.join(', '):''}
+      ${moodEntry.note?'<br><em>'+moodEntry.note+'</em>':''}
+    </div>`;
+  }
+  content.innerHTML = html;
+  document.getElementById('day-detail').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function renderHistory(){
+  const d = load();
+  const acts = d.acts || {};
+  const mood = d.mood || [];
+  const EMOJI_MAP={awful:'😞',low:'😕',meh:'😐',good:'🙂',great:'😄'};
+  
+  const allDates = [...new Set([
+    ...Object.keys(acts),
+    ...mood.map(m=>m.date)
+  ])].sort().reverse();
+  
+  const container = document.getElementById('history-content');
+  if(!allDates.length){
+    container.innerHTML='<div class="hist-empty">No history yet. Start logging!</div>';
+    return;
+  }
+  
+  let html = '';
+  let lastMonth = '';
+  
+  allDates.forEach(date=>{
+    const month = new Date(date+'T12:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    if(month !== lastMonth){
+      html += `<div class="hist-month">${month}</div>`;
+      lastMonth = month;
+    }
+    
+    const log = (acts[date]||[]);
+    const moodEntry = mood.find(m=>m.date===date);
+    const pts = log.reduce((s,e)=>s+e.pts,0);
+    const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(date+'T12:00:00').getDay()];
+    const dateNum = new Date(date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const emoji = moodEntry ? (EMOJI_MAP[moodEntry.emoji]||'') : '';
+    const ptsClass = pts>0?'pos':pts<0?'neg':'zero';
+    const ptsStr = pts>0?'+'+pts:pts===0?'—':''+pts;
+    
+    const tags = moodEntry?(moodEntry.tags&&moodEntry.tags.length?moodEntry.tags:(moodEntry.tag?[moodEntry.tag]:[])):[];
+    
+    html += `<div class="hist-day">
+      <div class="hist-day-header" onclick="toggleHistDay('${date}')">
+        <div class="hist-day-left">
+          <div>
+            <div class="hist-day-name">${dayName} ${dateNum}</div>
+            <div class="hist-day-date">${log.length} activit${log.length===1?'y':'ies'}${tags.length?' · '+tags.slice(0,2).join(', '):''}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${emoji?`<span class="hist-day-mood">${emoji}</span>`:''}
+          <span class="hist-day-pts ${ptsClass}">${ptsStr}</span>
+          <span style="color:#aaa;font-size:12px">›</span>
+        </div>
+      </div>
+      <div class="hist-day-body" id="hist-${date}">
+        ${log.map(e=>`<div class="hist-entry"><span class="hist-entry-name">${e.name}</span><span class="hist-entry-pts ${e.pts>=0?'pos':'neg'}">${e.pts>0?'+':''}${e.pts}</span></div>`).join('')}
+        ${moodEntry?`<div class="hist-mood-row" style="margin-top:${log.length?'.5rem':'0'}">
+          ${EMOJI_MAP[moodEntry.emoji]||''} Mood: ${moodEntry.mood}/10 · Energy: ${moodEntry.energy}/10 · Anxiety: ${moodEntry.anxiety}/10 · Confidence: ${moodEntry.conf}/10
+          ${tags.length?'<br>Tags: '+tags.join(', '):''}
+          ${moodEntry.note?'<br><em>'+moodEntry.note+'</em>':''}
+        </div>`:''}
+        ${!log.length&&!moodEntry?'<div style="color:#aaa;font-size:12px;padding:.25rem 0">Nothing logged.</div>':''}
+      </div>
+    </div>`;
+  });
+  
+  container.innerHTML = html;
+}
+
+function toggleHistDay(date){
+  const body = document.getElementById('hist-'+date);
+  if(body) body.classList.toggle('open');
+}
+function getToday(){
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return year+'-'+month+'-'+day;
+}
+function getWeekDates(){const n=new Date(),d=n.getDay(),r=[];for(let i=0;i<7;i++){const x=new Date(n);x.setDate(n.getDate()-d+i);r.push(x.toISOString().slice(0,10));}return r;}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return{};}}
+function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}}
+function getTodayLog(){const d=load();return(d.acts||{})[getToday()]||[];}
+function saveTodayLog(log){const d=load();if(!d.acts)d.acts={};d.acts[getToday()]=log;save(d);}
+function getDayPts(date){const d=load();return((d.acts||{})[date]||[]).reduce((s,e)=>s+e.pts,0);}
+function getWeekPts(){return getWeekDates().reduce((s,date)=>s+getDayPts(date),0);}
+function getBest(){const d=load();if(!d.acts)return 0;const vals=Object.values(d.acts).map(l=>l.reduce((s,e)=>s+e.pts,0));return vals.length?Math.max(0,...vals):0;}
+function getMoodLog(){return load().mood||[];}
+function saveMoodLog(m){const d=load();d.mood=m;save(d);}
+
+function getStreak(){
+  const d=load();const acts=d.acts||{};
+  const today=getToday();
+  let streak=0;let best=0;let cur=0;
+  const allDates=Object.keys(acts).sort();
+  if(!allDates.length)return{streak:0,best:0};
+  const dateSet=new Set(allDates.filter(date=>acts[date]&&acts[date].reduce((s,e)=>s+e.pts,0)>=1));
+  const check=new Date();
+  while(true){
+    const ds=check.toISOString().slice(0,10);
+    if(dateSet.has(ds)){streak++;check.setDate(check.getDate()-1);}
+    else if(ds===today){check.setDate(check.getDate()-1);}
+    else break;
+  }
+  const sorted=[...dateSet].sort();
+  sorted.forEach(date=>{
+    const prev=new Date(date);prev.setDate(prev.getDate()-1);
+    const ps=prev.toISOString().slice(0,10);
+    cur=dateSet.has(ps)?cur+1:1;
+    if(cur>best)best=cur;
+  });
+  return{streak,best:Math.max(streak,best)};
+}
+
+function logAct(id){
+  const act=ACTS.find(a=>a.id===id);if(!act)return;
+  const log=getTodayLog();
+  const existing=log.map((e,i)=>({e,i})).filter(x=>x.e.id===id);
+  if(existing.length>=1){
+    log.splice(existing[existing.length-1].i,1);
+  } else {
+    const n=new Date();
+    const t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+    log.push({id,name:act.name,pts:act.pts,time:t});
+  }
+  saveTodayLog(log);render();
+}
+function addActAgain(id){
+  const act=ACTS.find(a=>a.id===id);if(!act)return;
+  const log=getTodayLog();
+  const n=new Date();
+  const t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+  log.push({id,name:act.name,pts:act.pts,time:t});
+  saveTodayLog(log);render();
+}
+function undoEntry(idx){const log=getTodayLog();log.splice(idx,1);saveTodayLog(log);render();}
+function resetDay(){if(!confirm('Reset today\'s entries?'))return;const d=load();if(!d.acts)d.acts={};d.acts[getToday()]=[];save(d);render();}
+
+function pickEmoji(el,label,val){
+  document.querySelectorAll('.ebtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  moodEmoji={label,val};
+  document.getElementById('sl-mood').value=val;
+  document.getElementById('sv-mood').textContent=val;
+}
+function saveMood(){
+  const mood=parseInt(document.getElementById('sl-mood').value);
+  const energy=parseInt(document.getElementById('sl-energy').value);
+  const anxiety=parseInt(document.getElementById('sl-anxiety').value);
+  const conf=parseInt(document.getElementById('sl-conf').value);
+  const stress=parseInt(document.getElementById('sl-stress').value);
+  const note=document.getElementById('mood-note').value.trim();
+  const pts=getDayPts(getToday());
+  const tags=[...document.querySelectorAll('#mood-tags .mtag.active')].map(t=>t.textContent);
+  const entry={date:getToday(),emoji:moodEmoji.label||'',mood,energy,anxiety,conf,stress,tags,note,pts};
+  const log=getMoodLog();
+  const existing=log.findIndex(e=>e.date===getToday());
+  if(existing>=0)log[existing]=entry;else log.push(entry);
+  saveMoodLog(log);
+  alert('Mood saved!');
+  render();
+}
+
+function exportData(){
+  const data=JSON.stringify(load(),null,2);
+  document.getElementById('backup-text').value=data;
+  try{navigator.clipboard.writeText(data).then(()=>alert('Data exported and copied to clipboard! Paste it somewhere safe.'));}
+  catch(e){alert('Data shown below — copy it and save somewhere safe.');}
+}
+function importData(){
+  const text=document.getElementById('backup-text').value.trim();
+  if(!text){alert('Paste your backup data into the text area first.');return;}
+  try{
+    const parsed=JSON.parse(text);
+    if(!confirm('This will replace all current data. Are you sure?'))return;
+    localStorage.setItem(KEY,JSON.stringify(parsed));
+    alert('Data restored!');render();
+  }catch(e){alert('Invalid backup data. Make sure you pasted the full export.');}
+}
+function clearData(){
+  if(!confirm('Delete ALL your data permanently? This cannot be undone.'))return;
+  if(!confirm('Really sure? All points and mood history will be gone.'))return;
+  localStorage.removeItem(KEY);alert('Data cleared.');render();
+}
+
+function sw(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('view-'+tab).classList.add('active');
+  if(tab==='backup')refreshBackupStats();
+  if(tab==='summary')renderSummary();
+  if(tab==='history')renderHistory();
+}
+
+function refreshBackupStats(){
+  const d=load();
+  const acts=d.acts||{};
+  const mood=d.mood||[];
+  const allDays=Object.keys(acts).length;
+  const totalPts=Object.values(acts).reduce((s,log)=>s+log.reduce((ss,e)=>ss+e.pts,0),0);
+  const s=getStreak();
+  const statsDiv=document.getElementById('backup-stats');
+  statsDiv.innerHTML='<div class="ins-card"><div class="ins-sub">'
+    +'Days tracked: <strong>'+allDays+'</strong><br>'
+    +'Total points earned: <strong>'+totalPts+'</strong><br>'
+    +'Mood entries: <strong>'+mood.length+'</strong><br>'
+    +'Best streak: <strong>'+s.best+' days</strong>'
+    +'</div></div>';
+}
+
+const EMOJI_MAP={awful:'😞',low:'😕',meh:'😐',good:'🙂',great:'😄'};
+
+
+function getIntention(){const d=load();return(d.intentions||{})[getToday()]||{text:'',done:false};}
+function saveIntentionData(obj){const d=load();if(!d.intentions)d.intentions={};d.intentions[getToday()]=obj;save(d);}
+function saveIntention(){
+  const txt=document.getElementById('intention-input').value.trim();
+  if(!txt)return;
+  saveIntentionData({text:txt,done:false});
+  render();
+}
+function toggleIntentionDone(){
+  const i=getIntention();
+  if(!i.text)return;
+  saveIntentionData({text:i.text,done:!i.done});
+  render();
+}
+function renderIntention(){
+  const i=getIntention();
+  const display=document.getElementById('intention-display');
+  const inputRow=document.getElementById('intention-input-row');
+  const checkBtn=document.getElementById('intention-check-btn');
+  if(i.text){
+    display.textContent=i.text;
+    display.className='intention-sub'+(i.done?' done':'');
+    display.style.textDecoration=i.done?'line-through':'none';
+    display.style.color=i.done?'#aaa':'#1a1a18';
+    checkBtn.textContent=i.done?'✓':'';
+    checkBtn.className='intention-check'+(i.done?' done':'');
+    inputRow.style.display='none';
+  } else {
+    display.textContent="What's the one thing you want to do today?";
+    display.className='intention-sub placeholder';
+    display.style.textDecoration='none';
+    checkBtn.textContent='';
+    checkBtn.className='intention-check';
+    inputRow.style.display='flex';
+    document.getElementById('intention-input').value='';
+  }
+}
+
+function render(){
+  const today=getToday();
+  const log=getTodayLog();
+  const todayPts=log.reduce((s,e)=>s+e.pts,0);
+  const weekPts=getWeekPts();
+  const best=getBest();
+  const {streak,best:bestStreak}=getStreak();
+
+  document.getElementById('date-lbl').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+
+  document.getElementById('streak-count').textContent=streak;
+  document.getElementById('streak-best').textContent='Best: '+bestStreak;
+  const sub=document.getElementById('streak-sub');
+  if(streak===0)sub.textContent='Log today to start your streak';
+  else if(streak===1)sub.textContent='Day 1 — keep it going tomorrow';
+  else if(streak<7)sub.textContent=streak+' days in a row — building momentum';
+  else if(streak<30)sub.textContent=streak+' days — this is becoming a habit';
+  else sub.textContent=streak+' days — you are the system now';
+
+  const st=document.getElementById('s-today');
+  st.textContent=(todayPts>0?'+':'')+todayPts;
+  st.className='sv'+(todayPts>0?' pos':todayPts<0?' neg':'');
+  const sw2=document.getElementById('s-week');
+  sw2.textContent=(weekPts>0?'+':'')+weekPts;
+  sw2.className='sv'+(weekPts>0?' pos':weekPts<0?' neg':'');
+  document.getElementById('s-best').textContent='+'+best;
+  const pct=Math.min(100,Math.round(Math.max(0,weekPts)/25*100));
+  document.getElementById('pb-fill').style.width=pct+'%';
+  document.getElementById('pb-lbl').textContent=weekPts+' / 25 pts';
+
+  const lc={};log.forEach(e=>{lc[e.id]=(lc[e.id]||0)+1;});
+  ['mind','body','career','joy','shadow','morning','penalty'].forEach(cat=>{
+    const g=document.getElementById('g-'+cat);g.innerHTML='';
+    ACTS.filter(a=>a.cat===cat).forEach(act=>{
+      const cnt=lc[act.id]||0;const isPen=cat==='penalty';
+      const btn=document.createElement('button');
+      btn.className='abtn'+(isPen?' pen':'')+(cnt>0?' logged':'');
+      btn.onclick=()=>logAct(act.id);
+      const addMoreBtn=cnt>0?`<button class="add-more" onclick="event.stopPropagation();addActAgain('${act.id}')" style="border-color:${isPen?'#c0392b':'#1D9E75'};color:${isPen?'#c0392b':'#1D9E75'}">+</button>`:'';
+      btn.innerHTML=`<span class="aname">${act.name}</span><span class="apts ${act.pts>=0?'pos':'neg'}">${act.pts>0?'+':''}${act.pts}${cnt>0?' ✓'+(cnt>1?' ×'+cnt:''):''}</span>${addMoreBtn}`;
+      g.appendChild(btn);
+    });
+  });
+
+  const ll=document.getElementById('log-list');
+  if(!log.length){ll.innerHTML='<div class="empty">Nothing logged yet today.</div>';}
+  else{
+    ll.innerHTML='';
+    [...log].reverse().forEach((e,ri)=>{
+      const idx=log.length-1-ri;
+      const div=document.createElement('div');div.className='li';
+      div.innerHTML=`<div><div class="li-name">${e.name}</div><div class="li-time">${e.time}</div></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:${e.pts>=0?'#0F6E56':'#c0392b'}">${e.pts>0?'+':''}${e.pts}</span><button class="ubtn" onclick="undoEntry(${idx})">undo</button></div>`;
+      ll.appendChild(div);
+    });
+  }
+
+  const moodLog=getMoodLog();
+  const mh=document.getElementById('mood-history');
+  if(!moodLog.length){mh.innerHTML='<div class="empty">No mood entries yet.</div>';}
+  else{
+    mh.innerHTML='';
+    [...moodLog].reverse().slice(0,14).forEach(m=>{
+      const div=document.createElement('div');div.className='mood-hist-item';
+      const ec=EMOJI_MAP[m.emoji]||'';
+      const ds=new Date(m.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+      const tagArr=m.tags&&m.tags.length?m.tags:(m.tag?[m.tag]:[]);
+      div.innerHTML=`<div class="mhi-top"><span class="mhi-date">${ds}</span><span class="mhi-emoji">${ec}</span></div>`
+        +`<div class="mhi-bars">`
+        +`<div class="mhi-bar"><div class="mhi-bl">Mood</div><div class="mhi-bv">${m.mood}/10</div></div>`
+        +`<div class="mhi-bar"><div class="mhi-bl">Energy</div><div class="mhi-bv">${m.energy}/10</div></div>`
+        +`<div class="mhi-bar"><div class="mhi-bl">Anxiety</div><div class="mhi-bv">${m.anxiety}/10</div></div>`
+        +`<div class="mhi-bar"><div class="mhi-bl">Confidence</div><div class="mhi-bv">${m.conf}/10</div></div>`
+        +`<div class="mhi-bar"><div class="mhi-bl">Stress</div><div class="mhi-bv">${m.stress||'—'}/10</div></div>`
+        +`</div>`
+        +tagArr.map(t=>`<span class="mhi-tag">${t}</span>`).join('')
+        +(m.pts!==undefined?`<span class="mhi-tag" style="background:#e8f7f1;color:#085041">${m.pts>=0?'+':''}${m.pts} pts</span>`:'')
+        +(m.note?`<div class="mhi-note">${m.note}</div>`:'');
+      mh.appendChild(div);
+    });
+  }
+
+  const avgDiv=document.getElementById('avg-bars');
+  avgDiv.innerHTML='';
+  if(moodLog.length){
+    const recent=moodLog.slice(-7);
+    const avg=k=>Math.round(recent.reduce((s,m)=>s+m[k],0)/recent.length*10)/10;
+    [{key:'mood',label:'Overall mood',color:'#7F77DD'},{key:'energy',label:'Energy',color:'#1D9E75'},{key:'anxiety',label:'Anxiety',color:'#D85A30'},{key:'conf',label:'Confidence',color:'#378ADD'},{key:'stress',label:'Stress',color:'#888'}].forEach(m=>{
+      const val=avg(m.key);
+      const div=document.createElement('div');div.className='chart-row';
+      div.innerHTML=`<span class="chart-lbl">${m.label}</span><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(val/10*100)}%;background:${m.color}"></div></div><span class="chart-val">${val.toFixed(1)}</span>`;
+      avgDiv.appendChild(div);
+    });
+  } else {avgDiv.innerHTML='<div class="empty">Log mood for a few days to see averages.</div>';}
+
+  const actImpactDiv=document.getElementById('act-impact');
+  actImpactDiv.innerHTML='';
+  if(moodLog.length>=3){
+    const d=load();const actsData=d.acts||{};
+    const actMoods={};
+    moodLog.forEach(m=>{
+      const dayLog=(actsData[m.date]||[]);
+      const seen=new Set();
+      dayLog.forEach(e=>{
+        if(e.pts>0&&!seen.has(e.id)){
+          seen.add(e.id);
+          if(!actMoods[e.id])actMoods[e.id]={name:e.name,moods:[],daysWithout:[]};
+          actMoods[e.id].moods.push(m.mood);
+        }
+      });
+      moodLog.forEach(m2=>{
+        Object.keys(actMoods).forEach(id=>{
+          const didIt=(actsData[m2.date]||[]).some(e=>e.id===id);
+          if(!didIt)actMoods[id].daysWithout.push(m2.mood);
+        });
+      });
+    });
+    const ranked=Object.entries(actMoods)
+      .filter(([,v])=>v.moods.length>=2)
+      .map(([id,v])=>{
+        const avgWith=v.moods.reduce((s,x)=>s+x,0)/v.moods.length;
+        return{id,name:v.name,avg:Math.round(avgWith*10)/10,count:v.moods.length};
+      })
+      .sort((a,b)=>b.avg-a.avg)
+      .slice(0,8);
+    if(ranked.length){
+      const card=document.createElement('div');card.className='ins-card';
+      card.innerHTML='<div class="ins-title">On days you did these, your mood averaged:</div>';
+      ranked.forEach(r=>{
+        const row=document.createElement('div');row.className='act-rank-row';
+        row.innerHTML=`<span class="act-rank-name">${r.name}</span><span class="act-rank-mood">${r.avg}/10</span>`;
+        card.appendChild(row);
+      });
+      actImpactDiv.appendChild(card);
+    } else {
+      actImpactDiv.innerHTML='<div class="empty">Keep logging — needs a few more days of data.</div>';
+    }
+  } else {actImpactDiv.innerHTML='<div class="empty">Log mood for 3+ days to see which activities lift you most.</div>';}
+
+  const corrDiv=document.getElementById('corr-section');
+  corrDiv.innerHTML='';
+  if(moodLog.length>=3){
+    const hi=moodLog.filter(m=>m.pts>=10);
+    const lo=moodLog.filter(m=>m.pts<8);
+    const mid=moodLog.filter(m=>m.pts>=8&&m.pts<15);
+    if(hi.length){const am=Math.round(hi.reduce((s,m)=>s+m.mood,0)/hi.length*10)/10;const c=document.createElement('div');c.className='ins-card';c.innerHTML=`<div class="ins-title">High-scoring days (10+ pts)</div><div class="ins-sub">Avg mood <strong>${am}/10</strong> across <strong>${hi.length}</strong> day(s)</div>`;corrDiv.appendChild(c);}
+    if(mid.length){const am=Math.round(mid.reduce((s,m)=>s+m.mood,0)/mid.length*10)/10;const c=document.createElement('div');c.className='ins-card';c.innerHTML=`<div class="ins-title">Medium days (8–14 pts)</div><div class="ins-sub">Avg mood <strong>${am}/10</strong> across <strong>${mid.length}</strong> day(s)</div>`;corrDiv.appendChild(c);}
+    if(lo.length){const am=Math.round(lo.reduce((s,m)=>s+m.mood,0)/lo.length*10)/10;const c=document.createElement('div');c.className='ins-card';c.innerHTML=`<div class="ins-title">Low-scoring days (under 8 pts)</div><div class="ins-sub">Avg mood <strong>${am}/10</strong> across <strong>${lo.length}</strong> day(s)</div>`;corrDiv.appendChild(c);}
+    if(!hi.length&&!lo.length&&!mid.length)corrDiv.innerHTML='<div class="empty">Keep logging — patterns will appear soon.</div>';
+  } else {corrDiv.innerHTML='<div class="empty">Log mood for 3+ days to see correlations.</div>';}
+
+  const tagDiv=document.getElementById('tag-freq');tagDiv.innerHTML='';
+  const freq={};moodLog.forEach(m=>{const ts=m.tags&&m.tags.length?m.tags:(m.tag?[m.tag]:[]);ts.forEach(t=>{if(t)freq[t]=(freq[t]||0)+1;});});
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if(sorted.length){const row=document.createElement('div');row.className='tag-wrap';sorted.forEach(([tag,count])=>{const s=document.createElement('span');s.className='mtag active';s.style.cursor='default';s.textContent=`${tag} (${count}×)`;row.appendChild(s);});tagDiv.appendChild(row);}
+  else tagDiv.innerHTML='<div class="empty">Tags will appear here once you start logging mood.</div>';
+
+  const wg=document.getElementById('week-grid');wg.innerHTML='';
+  getWeekDates().forEach(date=>{
+    const pts=getDayPts(date);
+    const cell=document.createElement('div');
+    cell.className='dc'+(date===today?' today':'')+(pts>=4?' win':'');
+    cell.innerHTML=`<div class="dn">${DAYS[new Date(date+'T12:00:00').getDay()]}</div><div class="dp">${pts===0?'–':(pts>0?'+':'')+pts}</div>`;
+    cell.onclick=()=>showDayDetail(date);
+    cell.style.cursor='pointer';
+    wg.appendChild(cell);
+  });
+
+  const earn=document.getElementById('rules-earn');const lose=document.getElementById('rules-lose');
+  earn.innerHTML='';lose.innerHTML='';
+  ACTS.filter(a=>a.pts>0).forEach(a=>{const d=document.createElement('div');d.className='rr';d.innerHTML=`<span>${a.name}</span><span class="rpts pos">+${a.pts}</span>`;earn.appendChild(d);});
+  ACTS.filter(a=>a.pts<0).forEach(a=>{const d=document.createElement('div');d.className='rr';d.innerHTML=`<span>${a.name}</span><span class="rpts neg">${a.pts}</span>`;lose.appendChild(d);});
+  renderIntention();
+}
+
+
+// Auto-detect day change (fixes midnight rollover bug)
+let _lastDate = getToday();
+setInterval(()=>{
+  const nowDate = getToday();
+  if(nowDate !== _lastDate){
+    _lastDate = nowDate;
+    render();
+  }
+}, 60000);
+
+render();
+</script>
+</body>
+</html>
